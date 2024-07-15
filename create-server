@@ -1,0 +1,66 @@
+#!/bin/bash
+
+# サーバーのバージョンとタイプを引数として受け取る
+VERSION=$1
+TYPE=$2
+DIR_NAME=$3
+
+# ディレクトリが既に存在するか確認
+if [ -d "$DIR_NAME" ]; then
+    echo "ディレクトリ $DIR_NAME は既に存在します。別の名前を指定してください。"
+    exit 1
+fi
+
+# ディレクトリの作成
+mkdir $DIR_NAME
+cd $DIR_NAME
+
+# サーバーのダウンロードと設定
+if [ "$TYPE" == "vanilla" ]; then
+    # バニラサーバーのダウンロード
+    DOWNLOAD_URL=$(wget -qO- https://launchermeta.mojang.com/mc/game/version_manifest.json | jq -r --arg VERSION "$VERSION" '.versions[] | select(.id == $VERSION) | .url' | wget -qO- -i - | jq -r '.downloads.server.url')
+    if [ -z "$DOWNLOAD_URL" ]; then
+        echo "指定されたバージョンのサーバーが見つかりません。"
+        exit 1
+    fi
+    wget $DOWNLOAD_URL -O server.jar
+elif [ "$TYPE" == "forge" ]; then
+    # Forgeインストーラーのバージョン番号を調べてダウンロード
+    FORGE_VERSION=$(wget -qO- https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json | jq -r --arg VERSION "$VERSION" '.promos | to_entries[] | select(.key | startswith($VERSION)) | select(.key | endswith("recommended")) | .value')
+    if [ -z "$FORGE_VERSION" ]; then
+        echo "指定されたバージョンのForgeインストーラーが見つかりません。"
+        exit 1
+    fi
+    wget -O forge-installer.jar "https://maven.minecraftforge.net/net/minecraftforge/forge/$VERSION-$FORGE_VERSION/forge-$VERSION-$FORGE_VERSION-installer.jar"
+    if [ ! -f "forge-installer.jar" ]; then
+        echo "指定されたバージョンのForgeインストーラーが見つかりません。"
+        exit 1
+    fi
+    # インストールの実行
+    java -jar forge-installer.jar --installServer
+    rm forge-installer.jar
+    # modsディレクトリの作成
+    mkdir mods
+    # インストール後のサーバージャーを見つける
+    SERVER_JAR=$(ls forge-*.jar | head -n 1)
+else
+    echo "サーバータイプが無効です。'vanilla' または 'forge' を指定してください。"
+    exit 1
+fi
+
+# EULAの同意
+echo "eula=true" > eula.txt
+
+# Javaバージョンを選択
+if [[ "$VERSION" < "1.17" ]]; then
+    JAVA_PATH="/usr/lib/jvm/java-8-openjdk-amd64/bin/java"
+else
+    JAVA_PATH=$(which java)
+fi
+
+# スタートスクリプトの作成
+echo -e "#!/bin/bash\n$JAVA_PATH -Xmx1024M -Xms1024M -jar $SERVER_JAR nogui" > start.sh
+chmod +x start.sh
+
+echo "Minecraft $TYPE サーバーのセットアップが完了しました。"
+echo "サーバーを起動するには './start.sh' を実行してください。"
