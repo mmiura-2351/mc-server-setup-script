@@ -20,7 +20,7 @@ async fn main() {
     let config = Config::new(&args[1], &args[2], &args[3]);
     
     if create_directory(&config.dir_name).is_err() {
-        eprintln!("ディレクトリ {} は既に存在します。別の名前を指定してください。", config.dir_name);
+        eprintln!("Directory {} already exists. Please specify another name", config.dir_name);
         process::exit(1);
     }
 
@@ -44,5 +44,5 @@ async fn main() {
     create_start_script(&server_jar, &config.version);
     
     println!("Minecraft {} server setup is complete.", config.server_type);
-    println!("サーバーを起動するには './run.sh' を実行してください。");
+    println!("To start the server, run '. /run.sh' to start the server.");
 }
