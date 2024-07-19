@@ -1,7 +1,6 @@
 mod config;
 mod download;
 mod setup;
-mod utils;
 
 use crate::config::Config;
 use crate::download::{download_vanilla_server, download_forge_installer};
