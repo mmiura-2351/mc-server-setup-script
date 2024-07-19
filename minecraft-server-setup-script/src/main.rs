@@ -40,9 +40,9 @@ async fn main() {
 
     let server_jar = server_jar.unwrap();
     
-    agree_to_eula(&config.dir_name);
-    create_start_script(&config.dir_name, &server_jar, &config.version);
+    agree_to_eula();
+    create_start_script(&server_jar, &config.version);
     
     println!("Minecraft {} server setup is complete.", config.server_type);
-    println!("サーバーを起動するには './start.sh' を実行してください。");
+    println!("サーバーを起動するには './run.sh' を実行してください。");
 }

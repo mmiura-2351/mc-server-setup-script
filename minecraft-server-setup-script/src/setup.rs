@@ -11,14 +11,14 @@ pub fn create_directory(dir_name: &str) -> Result<(), io::Error> {
     Ok(())
 }
 
-pub fn agree_to_eula(dir_name: &str) {
-    let eula_path = format!("{}/eula.txt", dir_name);
+pub fn agree_to_eula() {
+    let eula_path = format!("eula.txt");
     let mut file = File::create(&eula_path).expect("eula.txtの作成に失敗しました");
     file.write_all(b"eula=true").expect("eula.txtへの書き込みに失敗しました");
 }
 
-pub fn create_start_script(dir_name: &str, server_jar: &str, version: &str) {
-    let start_script_path = format!("{}/start.sh", dir_name);
+pub fn create_start_script(server_jar: &str, version: &str) {
+    let start_script_path = format!("run.sh");
     let java_path = if version < "1.17" {
         "/usr/lib/jvm/java-8-openjdk-amd64/bin/java"
     } else {
@@ -29,7 +29,7 @@ pub fn create_start_script(dir_name: &str, server_jar: &str, version: &str) {
         java_path, server_jar
     );
 
-    let mut file = File::create(&start_script_path).expect("start.shの作成に失敗しました");
-    file.write_all(start_script_content.as_bytes()).expect("start.shへの書き込みに失敗しました");
+    let mut file = File::create(&start_script_path).expect("run.shの作成に失敗しました");
+    file.write_all(start_script_content.as_bytes()).expect("run.shへの書き込みに失敗しました");
     let _ = fs::set_permissions(&start_script_path, fs::Permissions::from_mode(0o755));
 }
