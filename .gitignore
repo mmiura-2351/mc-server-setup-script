@@ -1,0 +1,5 @@
+# ignore target directory
+minecraft-server-setup-script/target
+
+# cargo.lock is left intentionally
+# Cargo.lock
