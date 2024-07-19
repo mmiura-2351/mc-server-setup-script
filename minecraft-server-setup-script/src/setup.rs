@@ -22,7 +22,7 @@ pub fn create_start_script(server_jar: &str, version: &str) {
     let java_path = if version < "1.17" {
         "/usr/lib/jvm/java-8-openjdk-amd64/bin/java"
     } else {
-        "java"
+        "/usr/lib/jvm/java-17-openjdk-amd64/bin/java"
     };
     let start_script_content = format!(
         "#!/bin/bash\n{} -Xmx1024M -Xms1024M -jar {} nogui",
