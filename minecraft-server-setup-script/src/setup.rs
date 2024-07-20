@@ -24,10 +24,7 @@ pub fn create_start_script(server_jar: &str, version: &str) {
     } else {
         "/usr/lib/jvm/java-17-openjdk-amd64/bin/java"
     };
-    let start_script_content = format!(
-        "#!/bin/bash\n{} -Xmx1024M -Xms1024M -jar {} nogui",
-        java_path, server_jar
-    );
+    let start_script_content = format!("#!/bin/bash\n{} -Xmx1024M -Xms1024M -jar {} nogui", java_path, server_jar);
 
     let mut file = File::create(&start_script_path).expect("Failed to create run.sh");
     file.write_all(start_script_content.as_bytes()).expect("Failed to write to run.sh");

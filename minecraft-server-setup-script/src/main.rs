@@ -3,8 +3,8 @@ mod download;
 mod setup;
 
 use crate::config::Config;
-use crate::download::{download_vanilla_server, download_forge_installer};
-use crate::setup::{create_directory, create_start_script, agree_to_eula};
+use crate::download::{download_forge_installer, download_vanilla_server};
+use crate::setup::{agree_to_eula, create_directory, create_start_script};
 use std::env;
 use std::process;
 
@@ -17,7 +17,7 @@ async fn main() {
     }
 
     let config = Config::new(&args[1], &args[2], &args[3]);
-    
+
     if create_directory(&config.dir_name).is_err() {
         eprintln!("Directory {} already exists. Please specify another name", config.dir_name);
         process::exit(1);
@@ -38,10 +38,10 @@ async fn main() {
     }
 
     let server_jar = server_jar.unwrap();
-    
+
     agree_to_eula();
     create_start_script(&server_jar, &config.version);
-    
+
     println!("Minecraft {} server setup is complete.", config.server_type);
     println!("To start the server, run '. /run.sh' to start the server.");
 }
