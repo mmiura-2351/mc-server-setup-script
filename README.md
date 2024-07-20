@@ -1,56 +1,61 @@
-# Minecraft Server Setup Script
+# About  
+このツールはMinecraftのサーバーをセットアップするためのものです。  
 
-このスクリプトは、特定のMinecraftバージョンとサーバータイプ（vanillaまたはforge）に基づいてMinecraftサーバーを自動的にセットアップします。また、Minecraftバージョンに応じて適切なJavaバージョンを自動的に選択してサーバーを起動します。
+## 開発環境  
+- Ubuntu 22.04
+- Java 8およびJava 17
+- Rust rustc 1.79.0
 
 ## 前提条件
+- gitをインストール済み
+- Rustをインストール済み
+- javaをインストール済み(サーバーを起動するときに必要)
 
-- Ubuntu 22.04
-- Java 8およびJava 17がインストールされていること
-- `jq` コマンドがインストールされていること
+## 使用方法  
+1. リポジトリをクローンします。  
+    ```sh
+    git clone https://github.com/mmiura-2351/mc-server-setup-script.git
+    cd minecraft-server-setup-script
+    ```
 
-### 必要なパッケージのインストール
+2. 必要な依存関係をインストールします。  
+    ```sh
+    cargo build
+    ```
 
-```bash
-sudo apt update
-sudo apt install openjdk-8-jdk openjdk-17-jdk jq
-```
+3. サーバーをセットアップします。以下のどちらかのコマンドを実行して、サーバーのバージョン、サーバータイプ（vanillaまたはforge）、およびディレクトリ名を指定します。  
+    ### [方法1]指示に従ってサーバーをセットアップ  
+    ```sh
+    ./target/debug/minecraft_server_setup_script
+    ```
 
-## スクリプトの使用方法
-### 1.スクリプトのダウンロードと実行権限の付与
-```bash
-git clone https://github.com/mmiura-2351/mc-server-templates.git
-chmod +x create-server
-```
+    ### [方法2]引数を指定してサーバーをセットアップ  
+    ```sh
+    ./target/debug/minecraft_server_setup_script --version <バージョン> --server-type <サーバータイプ> --dir-name <ディレクトリ名>
+    # -v <バージョン> -s <サーバータイプ> -d <ディレクトリ名>でも可
+    ```
+    また、引数は任意のため、`--version`、`--server-type`、`--dir-name`のうち必要なもののみを指定しても構いません。  
 
-### 2.サーバーの作成
-以下のコマンドを使用して、サーバーを作成します。
-```bash
-./create-server [version] (vanilla|forge) [directory-name]
-```
 
-### 例
-Minecraft 1.16.5 のForgeサーバーを forge_1.16.5_test というディレクトリに作成する場合:
-```bash
-./create-server 1.16.5 forge forge_1.16.5_test
-```
+5. サーバーを起動します。  
+    ```sh
+    cd <ディレクトリ名>
+    ./run.sh
+    ```
 
-### 3.サーバーの起動
-作成されたディレクトリに移動し、start.sh スクリプトを実行してサーバーを起動します。
-```bash
-cd [directory-name]
-./start.sh
-```
+## プログラムの詳細  
+1. 引数の処理  
+受け取ったコマンドライン引数をパースし、必要な情報（サーバーバージョン、サーバータイプ、ディレクトリ名など）を取得します。足りない情報がある場合は、標準入力からユーザーに入力を促します。
 
-> [!WARNING]
-> 1.17以降のバージョンではstart.shでサーバーを起動できません。代わりに自動で生成されるrun.shを使用してください。
+2. サーバーのセットアップ  
+ユーザーが指定した引数に基づいて、Minecraftサーバーのセットアップを行います。必要なファイルやディレクトリを作成します。
 
-## スクリプトの詳細
-1このスクリプトは以下のステップを実行します：
-1. 指定されたディレクトリ名が既に存在するか確認し、存在する場合はエラーを表示して終了します。
-2. 指定されたバージョンとサーバータイプに基づいて、適切なMinecraftサーバーまたはForgeサーバーをダウンロードします。
-3. サーバーファイルを配置し、必要な設定ファイル（eula.txt）を作成します。
-4. Minecraftのバージョンに応じて適切なJavaバージョンを選択し、サーバー起動用の start.sh スクリプトを作成します。
+3. サーバーのダウンロード  
+ユーザーが指定したバージョン、サーバータイプに基づいて、サーバーをダウンロードします。  
+このとき、バージョンが1.17以降かつ、サーバータイプがForgeの場合は、特殊な処理を行います。
 
-> [!WARNING]
-> このスクリプトは個人使用のために作成したものであり、一切の責任を負いません。
-> このREADME.mdはChatGPTで作成されたものです。
+4. サーバーのスタートスクリプトの作成  
+Minecraftのサーバーはバージョンにより必要なJavaのバージョンが変わるため、対応したJavaのバージョンを指定してスタートスクリプトを作成します。
+
+5. eula.txtの作成  
+サーバーのライセンスに同意するために、eula.txtを作成します。
