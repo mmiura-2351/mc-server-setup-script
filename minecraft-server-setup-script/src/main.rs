@@ -1,3 +1,4 @@
+mod cli;
 mod config;
 mod download;
 mod setup;
@@ -5,18 +6,18 @@ mod setup;
 use crate::config::Config;
 use crate::download::{download_forge_installer, download_vanilla_server};
 use crate::setup::{agree_to_eula, create_directory, create_start_script};
-use std::env;
+use cli::parse_cli;
 use std::process;
 
 #[tokio::main]
 async fn main() {
-    let args: Vec<String> = env::args().collect();
-    if args.len() != 4 {
-        eprintln!("Usage: {} <version> <type> <dir_name>", args[0]);
-        process::exit(1);
-    }
+    let cli = parse_cli();
 
-    let config = Config::new(&args[1], &args[2], &args[3]);
+    let version = cli.version.unwrap();
+    let server_type = cli.server_type.unwrap();
+    let dir_name = cli.dir_name.unwrap();
+
+    let config = Config::new(&version, &server_type, &dir_name);
 
     if create_directory(&config.dir_name).is_err() {
         eprintln!("Directory {} already exists. Please specify another name", config.dir_name);
