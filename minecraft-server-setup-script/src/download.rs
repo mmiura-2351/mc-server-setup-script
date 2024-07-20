@@ -75,13 +75,28 @@ pub async fn download_forge_installer(version: &str) -> Result<String, String> {
 
     std::fs::remove_file("forge-installer.jar").map_err(|_| "Failed to remove Forge installer")?;
 
-    let server_jar = std::fs::read_dir(".")
-        .map_err(|_| "Failed to read directory")?
-        .filter_map(Result::ok)
-        .find(|entry| entry.path().is_file() && entry.file_name().to_str().map_or(false, |f| f.starts_with("forge-") && f.ends_with(".jar")))
-        .ok_or("Forge server jar not found")?;
+    // Forge1.17以降のバージョンではディレクトリ構造が変わるため別の処理を行う
+    let server_jar = if version < "1.17" {
+        let server_jar_str = std::fs::read_dir(".")
+            .map_err(|_| "Failed to read directory")?
+            .filter_map(Result::ok)
+            .find(|entry| entry.path().is_file() && entry.file_name().to_str().map_or(false, |f| f.starts_with("forge-") && f.ends_with(".jar")))
+            .ok_or("Forge server jar not found")?;
+        server_jar_str.file_name().to_string_lossy().to_string()
+    } else {
+        let server_jar_str = "libraries/net/minecraftforge/forge/".to_string()
+            + version
+            + "-"
+            + forge_version
+            + "/forge-"
+            + version
+            + "-"
+            + forge_version
+            + "-server.jar";
+        server_jar_str
+    };
 
-    Ok(server_jar.file_name().to_string_lossy().to_string())
+    Ok(server_jar)
 }
 
 async fn download_file(url: &str, filename: &str) -> Result<String, String> {
