@@ -1,5 +1,7 @@
 use std::fs::{self, File};
 use std::io::{self, Write};
+
+#[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
 
 pub fn create_directory(dir_name: &str) -> Result<(), io::Error> {
@@ -28,5 +30,7 @@ pub fn create_start_script(server_jar: &str, version: &str) {
 
     let mut file = File::create(&start_script_path).expect("Failed to create run.sh");
     file.write_all(start_script_content.as_bytes()).expect("Failed to write to run.sh");
+
+    #[cfg(unix)]
     let _ = fs::set_permissions(&start_script_path, fs::Permissions::from_mode(0o755));
 }
